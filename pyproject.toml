@@ -1,0 +1,69 @@
+# Poetry pyproject.toml: https://python-poetry.org/docs/pyproject/
+
+[build-system]
+requires = ["poetry>=1.0"]
+build-backend = "poetry.masonry.api"
+
+[tool.poetry]
+name = "layer-to-layer-pytorch"
+version = "0.1.0"
+description = "PyTorch implementation of L2L execution algorithm"
+readme = "README.md"
+authors = [
+  "Roman Tezikov <tez.romach@gmail.com>"
+]
+license = "MIT"
+repository = "https://github.com/TezRomacH/layer-to-layer-pytorch"
+homepage = "https://github.com/TezRomacH/layer-to-layer-pytorch"
+
+# Keywords description https://python-poetry.org/docs/pyproject/#keywords
+keywords = []  # Update me
+
+# Pypi classifiers: https://pypi.org/classifiers/
+classifiers = [  # Update me
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "Operating System :: OS Independent",
+  "Topic :: Software Development :: Libraries :: Python Modules",
+]
+
+[tool.poetry.scripts]
+# Entry points for the package https://python-poetry.org/docs/pyproject/#scripts
+"layer-to-layer-pytorch" = "layer_to_layer_pytorch.__main__:app"
+
+[tool.poetry.dependencies]
+python = "^3.7"
+importlib_metadata = {version = "^1.6.0", python = "<3.8"}
+typer = {extras = ["all"], version = "^0.2.1"}
+rich = "^2.2.2"
+torch = "^1.6.0"
+
+[tool.poetry.dev-dependencies]
+darglint = "^1.4.1"
+isort = {extras = ["pyproject"], version = "^4.3.21"}
+pyupgrade = "^2.6.1"
+black = "^19.10b0"
+mypy = "^0.780"
+bandit = "^1.6.2"
+safety = "^1.9.0"
+pytest = "^5.4.3"
+pylint = "^2.5.3"
+pydocstyle = "^5.0.2"
+pre-commit = "^2.7.1"
+
+[tool.black]
+# https://github.com/psf/black
+line-length = 80
+target-version = ["py37"]
+
+[tool.isort]
+# https://github.com/timothycrosley/isort/
+known_typing = "typing,types,typing_extensions,mypy,mypy_extensions"
+sections = "FUTURE,TYPING,STDLIB,THIRDPARTY,FIRSTPARTY,LOCALFOLDER"
+include_trailing_comma = true
+default_section = "FIRSTPARTY"
+multi_line_output = 3
+indent = 4
+force_grid_wrap = 0
+use_parentheses = true
+line_length = 80

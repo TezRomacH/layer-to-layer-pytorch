@@ -1,0 +1,10 @@
+# This file contains values from Cookiecutter
+
+default_context:
+  project_name: "layer-to-layer-pytorch"
+  project_description: "PyTorch implementation of L2L execution algorithm"
+  organization: "Roman Tezikov"
+  license: "MIT"
+  version: "0.1.0"
+  github_name: "TezRomacH"
+  email: "tez.romach@gmail.com"
