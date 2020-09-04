@@ -61,7 +61,6 @@ target-version = ["py37"]
 known_typing = "typing,types,typing_extensions,mypy,mypy_extensions"
 sections = "FUTURE,TYPING,STDLIB,THIRDPARTY,FIRSTPARTY,LOCALFOLDER"
 include_trailing_comma = true
-default_section = "FIRSTPARTY"
 multi_line_output = 3
 indent = 4
 force_grid_wrap = 0

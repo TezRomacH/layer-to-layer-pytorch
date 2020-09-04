@@ -1,8 +1,9 @@
 # type: ignore[attr-defined]
 
+from typing import Optional
+
 import random
 from enum import Enum
-from typing import Optional
 
 import typer
 from rich.console import Console
