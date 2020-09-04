@@ -34,13 +34,13 @@ classifiers = [  # Update me
 [tool.poetry.dependencies]
 python = "^3.7"
 importlib_metadata = {version = "^1.6.0", python = "<3.8"}
-typer = {extras = ["all"], version = "^0.2.1"}
+typer = {extras = ["all"], version = "^0.3.2"}
 rich = "^6.0.0"
 torch = "^1.6.0"
 
 [tool.poetry.dev-dependencies]
 darglint = "^1.4.1"
-isort = {extras = ["pyproject"], version = "^4.3.21"}
+isort = {extras = ["pyproject"], version = "^5.5.0"}
 pyupgrade = "^2.6.1"
 black = "^19.10b0"
 mypy = "^0.780"
