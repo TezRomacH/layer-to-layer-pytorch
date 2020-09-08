@@ -24,6 +24,7 @@ jobs:
       with:
         path: .venv
         key: venv-${{ matrix.python-version }}-${{ hashFiles('pyproject.toml') }}-${{ hashFiles('poetry.lock') }}
+
     - name: Install dependencies
       run: |
         source "$HOME/.poetry/env"

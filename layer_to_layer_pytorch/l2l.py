@@ -44,8 +44,8 @@ class Layer2Layer:
         self._grads: List[TensorOrTensorArray] = [[]] * self.num_layers
 
     def _reset_activations(self):
-        self._activations: List[TensorOrTensorArray] = [[]] * self.num_layers
-        self._grads: List[TensorOrTensorArray] = [[]] * self.num_layers
+        self._activations = [[]] * self.num_layers
+        self._grads = [[]] * self.num_layers
 
     def zero_grad(self) -> None:
         for param in self.main_model.parameters():
@@ -145,3 +145,6 @@ class Layer2Layer:
 
     def __call__(self, batch: torch.Tensor) -> torch.Tensor:
         return self.forward(batch)
+
+
+__all__ = ["Layer2Layer"]

@@ -15,35 +15,7 @@
 PyTorch implementation of L2L execution algorithm
 </div>
 
-## 🚀 Features
-
-For your development we've prepared:
-
-- Supports for `Python 3.7` and higher.
-- [`Poetry`](https://python-poetry.org/) as the dependencies manager. See configuration in [`pyproject.toml`](https://github.com/TezRomacH/layer-to-layer-pytorch/blob/master/pyproject.toml) and [`setup.cfg`](https://github.com/TezRomacH/layer-to-layer-pytorch/blob/master/setup.cfg).
-- Power of [`black`](https://github.com/psf/black), [`isort`](https://github.com/timothycrosley/isort) and [`pyupgrade`](https://github.com/asottile/pyupgrade) formatters.
-- Ready-to-use [`pre-commit`](https://pre-commit.com/) hooks with formatters above.
-- Type checks with the configured [`mypy`](https://mypy.readthedocs.io).
-- Testing with [`pytest`](https://docs.pytest.org/en/latest/).
-- Docstring checks with [`darglint`](https://github.com/terrencepreilly/darglint).
-- Security checks with [`safety`](https://github.com/pyupio/safety) and [`bandit`](https://github.com/PyCQA/bandit).
-- Well-made [`.editorconfig`](https://github.com/TezRomacH/layer-to-layer-pytorch/blob/master/.editorconfig), [`.dockerignore`](https://github.com/TezRomacH/layer-to-layer-pytorch/blob/master/.dockerignore), and [`.gitignore`](https://github.com/TezRomacH/layer-to-layer-pytorch/blob/master/.gitignore). You don't have to worry about those things.
-
-For building and deployment:
-
-- `GitHub` integration.
-- [`Makefile`](https://github.com/TezRomacH/layer-to-layer-pytorch/blob/master/Makefile#L89) for building routines. Everything is already set up for security checks, codestyle checks, code formatting, testing, linting, docker builds, etc. More details at [Makefile summary](#makefile-usage)).
-- [Dockerfile](https://github.com/TezRomacH/layer-to-layer-pytorch/blob/master/docker/Dockerfile) for your package.
-- `Github Actions` with predefined [build workflow](https://github.com/TezRomacH/layer-to-layer-pytorch/blob/master/.github/workflows/build.yml) as the default CI/CD.
-- Always up-to-date dependencies with [`@dependabot`](https://dependabot.com/) (You will only [enable it](https://docs.github.com/en/github/administering-a-repository/enabling-and-disabling-version-updates#enabling-github-dependabot-version-updates)).
-- Automatic drafts of new releases with [`Release Drafter`](https://github.com/marketplace/actions/release-drafter). It creates a list of changes based on labels in merged `Pull Requests`. You can see labels (aka `categories`) in [`release-drafter.yml`](https://github.com/TezRomacH/layer-to-layer-pytorch/blob/master/.github/release-drafter.yml). Works perfectly with [Semantic Versions](https://semver.org/) specification.
-
-For creating your open source community:
-
-- Ready-to-use [Pull Requests templates](https://github.com/TezRomacH/layer-to-layer-pytorch/blob/master/.github/PULL_REQUEST_TEMPLATE.md) and several [Issue templates](https://github.com/TezRomacH/layer-to-layer-pytorch/tree/master/.github/ISSUE_TEMPLATE).
-- Files such as: `LICENSE`, `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, and `SECURITY.md` are generated automatically.
-- [`Stale bot`](https://github.com/apps/stale) that closes abandoned issues after a period of inactivity. (You will only [need to setup free plan](https://github.com/marketplace/stale)). Configuration is [here](https://github.com/TezRomacH/layer-to-layer-pytorch/blob/master/.github/.stale.yml).
-- [Semantic Versions](https://semver.org/) specification with [`Release Drafter`](https://github.com/marketplace/actions/release-drafter).
+## 🚀 Features [WIP]
 
 ## Installation [Not yet ready]
 
@@ -71,6 +43,8 @@ This project is licensed under the terms of the `MIT` license. See [LICENSE](htt
 
 ## 📃 Citation
 
+### This library
+
 ```
 @misc{layer-to-layer-pytorch,
   author = {Roman Tezikov},
@@ -79,6 +53,18 @@ This project is licensed under the terms of the `MIT` license. See [LICENSE](htt
   publisher = {GitHub},
   journal = {GitHub repository},
   howpublished = {\url{https://github.com/TezRomacH/layer-to-layer-pytorch}}
+}
+```
+
+### Original paper
+
+```
+@article{Pudipeddi2020TrainingLN,
+  title={Training Large Neural Networks with Constant Memory using a New Execution Algorithm},
+  author={Bharadwaj Pudipeddi and Maral Mesmakhosroshahi and J. Xi and S. Bharadwaj},
+  journal={ArXiv},
+  year={2020},
+  volume={abs/2002.05645}
 }
 ```
 
