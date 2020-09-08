@@ -49,7 +49,7 @@ class Layer2Layer:
 
     def zero_grad(self) -> None:
         for param in self.main_model.parameters():
-            param.grad = 0
+            param.grad = None
 
         self._reset_activations()
 
@@ -128,10 +128,20 @@ class Layer2Layer:
                     activation.backward(microtarget)
                     self._grads[idx].append(microbatch.grad.cpu())
 
+            for local_param, main_param in zip(
+                layer.parameters(), layers[f_idx].parameters()
+            ):
+                if main_param.grad is None:
+                    main_param.grad = local_param.grad.cpu() / num_steps
+                else:
+                    main_param.grad += local_param.grad.cpu() / num_steps
+
             with torch.no_grad():
                 self._grads[idx] = (
                     torch.cat(self._grads[idx], dim=0).cpu() / num_steps
                 )
+
+        self._grads = list(reversed(self._grads))
 
     def __call__(self, batch: torch.Tensor) -> torch.Tensor:
         return self.forward(batch)
