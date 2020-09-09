@@ -1,14 +1,11 @@
-from typing import Callable, List
+from typing import List, Optional
 
 import copy
 
 import torch
 from torch import nn
 
-from layer_to_layer_pytorch.types import Device, TensorOrTensorArray
-
-# from tqdm.auto import tqdm
-# from tqdm.contrib import tenumerate, tzip
+from layer_to_layer_pytorch.types import Device, LossFn, TensorOrTensorArray
 
 
 class Layer2Layer:
@@ -16,7 +13,7 @@ class Layer2Layer:
         self,
         model: nn.Module,
         layers_field: str,
-        microbatch_size: int,
+        microbatch_size: Optional[int],
         gpu_device: Device = "cuda",
         verbose: bool = False,
     ):
@@ -26,14 +23,14 @@ class Layer2Layer:
                 f"Model must contain `nn.ModuleList` in field `{layers_field}`"
             )
 
-        if microbatch_size < 0:
+        if (microbatch_size is not None) and (microbatch_size < 0):
             raise ValueError(
                 f"Size of a microbatch must be greater than zero. Got {microbatch_size}"
             )
 
         self.main_model: nn.Module = copy.deepcopy(model.cpu())
         self.layers_field: str = layers_field
-        self.microbatch_size: int = microbatch_size
+        self.microbatch_size: Optional[int] = microbatch_size
         self.gpu_device: Device = gpu_device
 
         self.verbose: bool = verbose
@@ -68,7 +65,13 @@ class Layer2Layer:
                 input = self._activations[idx - 1]
 
             # forward with microbatching
-            for microbatch in input.split(self.microbatch_size):
+            batch_size = input.shape[0]
+            microbatch_size = (
+                batch_size
+                if self.microbatch_size is None
+                else self.microbatch_size
+            )
+            for microbatch in input.split(microbatch_size):
                 microbatch = microbatch.to(self.gpu_device)
                 activation: torch.Tensor = layer(microbatch, **kwargs)
 
@@ -82,7 +85,7 @@ class Layer2Layer:
         self,
         batch: torch.Tensor,
         target: torch.Tensor,
-        loss_fn: Callable,
+        loss_fn: LossFn,
         loss_kwargs: dict = None,
         **forward_kwargs,
     ):
@@ -108,12 +111,18 @@ class Layer2Layer:
                 input = self._activations[f_idx - 1]
                 output = target
 
-            num_steps = len(input) // self.microbatch_size
+            batch_size = input.shape[0]
+            microbatch_size = (
+                batch_size
+                if self.microbatch_size is None
+                else self.microbatch_size
+            )
+
+            num_steps: int = input.shape[0] // microbatch_size
 
             # backward with microbatching
             for microbatch, microtarget in zip(
-                input.split(self.microbatch_size),
-                output.split(self.microbatch_size),
+                input.split(microbatch_size), output.split(microbatch_size)
             ):
                 microbatch = microbatch.to(self.gpu_device)
                 microbatch.requires_grad = True
