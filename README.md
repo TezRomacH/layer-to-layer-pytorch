@@ -69,7 +69,7 @@ model = M(depth=5, dim=40).train() # on CPU
 l2l_model = Layer2Layer(
     model,
     layers_attr="layers", # attribute with ModuleList
-    microbatch_size=100,  # size of microbatch in minibatch :) from original paper
+    microbatch_size=100,  # size of a microbatch in a minibatch :) from original paper
     verbose=False  # enable tqdm
 )
 ```
@@ -83,9 +83,9 @@ x = torch.rand(1_000, 40) # on CPU
 y = torch.rand(1_000, 40) # on CPU
 
 losses = []
-loss_fn = nn.MSELoss(reduction="sum") # since L2L calcs average loses itself, we just need to save them
+loss_fn = nn.MSELoss(reduction="sum") # since L2L calcs average losses itself, we just need to save them
 
-optimizer = optim.AdamW(l2l_model.main_model.parameters(), lr=0.001) # optimizer looks to main model on CPu
+optimizer = optim.AdamW(l2l_model.main_model.parameters(), lr=0.001) # optimizer works with the main model on CPU
 
 for i in trange(5000):
     l2l_model.zero_grad()
