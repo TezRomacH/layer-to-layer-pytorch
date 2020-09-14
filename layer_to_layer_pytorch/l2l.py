@@ -40,12 +40,16 @@ class Layer2Layer:
 
         self.num_layers: int = len(layers)
 
-        self._activations: List[TensorOrTensorArray] = [[]] * self.num_layers
-        self._grads: List[TensorOrTensorArray] = [[]] * self.num_layers
+        self._activations: List[TensorOrTensorArray] = [
+            [] for _ in range(self.num_layers)
+        ]
+        self._grads: List[TensorOrTensorArray] = [
+            [] for _ in range(self.num_layers)
+        ]
 
     def _reset_activations(self):
-        self._activations = [[]] * self.num_layers
-        self._grads = [[]] * self.num_layers
+        self._activations = [[] for _ in range(self.num_layers)]
+        self._grads = [[] for _ in range(self.num_layers)]
 
     def zero_grad(self) -> None:
         for param in self.main_model.parameters():
@@ -92,13 +96,13 @@ class Layer2Layer:
 
         return self._activations[-1]
 
-    def calculate_gradients(
+    def backward(
         self,
         batch: torch.Tensor,
         target: torch.Tensor,
         loss_fn: LossFn,
         loss_kwargs: dict = None,
-        skip_last_layer: bool = False,
+        # skip_last_layer: bool = False,
         **forward_kwargs,
     ) -> Optional[torch.Tensor]:
         if loss_kwargs is None:
@@ -118,20 +122,25 @@ class Layer2Layer:
             layer = copy.deepcopy(l).to(self.gpu_device)
             f_idx: int = self.num_layers - idx - 1
 
-            if idx == 0 and skip_last_layer:
-                microbatch_size = self._get_microbatch_size(
-                    self._activations[f_idx]
-                )
-                num_steps: int = (
-                    self._activations[f_idx].shape[0] // microbatch_size
-                )
-                self._copy_grad_to_main_model(
-                    idx,
-                    num_steps,
-                    local_params=layer.parameters(),
-                    main_params=layers[f_idx].parameters(),
-                )
-                continue
+            # TODO: preserve re-calculations
+            # if idx == 0 and skip_last_layer:
+            #     microbatch_size = self._get_microbatch_size(
+            #         self._activations[f_idx]
+            #     )
+            #     num_steps: int = (
+            #         self._activations[f_idx].shape[0] // microbatch_size
+            #     )
+            #     self._copy_grad_to_main_model(
+            #         num_steps,
+            #         local_params=layer.parameters(),
+            #         main_params=layers[f_idx].parameters(),
+            #     )
+
+            #     with torch.no_grad():
+            #         self._grads[idx] = (
+            #             torch.cat(self._grads[idx], dim=0).cpu() / num_steps
+            #     )
+            #     continue
 
             for param in layer.parameters():
                 param.requires_grad = True
@@ -144,10 +153,10 @@ class Layer2Layer:
                 output = target
             elif f_idx == 0:  # first layer
                 input = batch
-                output = self._activations[f_idx]
+                output = self._grads[idx - 1]
             else:  # any other layer
                 input = self._activations[f_idx - 1]
-                output = self._activations[f_idx]
+                output = self._grads[idx - 1]
 
             microbatch_size = self._get_microbatch_size(input)
             num_steps: int = input.shape[0] // microbatch_size
@@ -180,27 +189,28 @@ class Layer2Layer:
                     losses.append(loss.item())
                     loss.backward()
 
-                    self._grads[idx].append(microbatch.grad.cpu())
                 else:
-                    activation.backward(microtarget)
-                    self._grads[idx].append(microbatch.grad.cpu())
+                    activation.backward(microtarget)  # grads actually
 
-            self._copy_grad_to_main_model(
-                idx,
-                num_steps,
-                local_params=layer.parameters(),
-                main_params=layers[f_idx].parameters(),
-            )
+                self._grads[idx].append(microbatch.grad.cpu())
+
+                self._copy_grad_to_main_model(
+                    num_steps,
+                    local_params=layer.parameters(),
+                    main_params=layers[f_idx].parameters(),
+                )
+
+            with torch.no_grad():
+                self._grads[idx] = (
+                    torch.cat(self._grads[idx], dim=0).cpu() / num_steps
+                )
 
         self._grads = list(reversed(self._grads))
+        # if not skip_last_layer:
+        with torch.no_grad():
+            loss_value = torch.tensor(np.sum(losses) / num_steps_in_loss)
 
-        if not skip_last_layer:
-            with torch.no_grad():
-                loss_value = torch.tensor(np.sum(losses) / num_steps_in_loss)
-
-                return loss_value
-
-        return None
+            return loss_value
 
     def __call__(self, batch: torch.Tensor) -> torch.Tensor:
         return self.forward(batch)
@@ -215,7 +225,7 @@ class Layer2Layer:
         return getattr(self.main_model, self.layers_attr)
 
     def _copy_grad_to_main_model(
-        self, idx: int, num_steps: int, local_params, main_params
+        self, num_steps: int, local_params, main_params
     ):
         for local_param, main_param in zip(local_params, main_params):
             if main_param.grad is None:
@@ -223,18 +233,10 @@ class Layer2Layer:
             else:
                 main_param.grad += local_param.grad.cpu() / num_steps
 
-        with torch.no_grad():
-            self._grads[idx] = (
-                torch.cat(self._grads[idx], dim=0).cpu() / num_steps
-            )
-
-    def l2l_loss(
-        self, loss_fn: LossFn, store_grad_on_calc: bool = True, **forward_kwargs
-    ) -> L2LLoss:
+    def l2l_loss(self, loss_fn: LossFn, **forward_kwargs) -> L2LLoss:
         return L2LLoss(
             model=self,
             loss_fn=loss_fn,
-            store_grad_on_calc=store_grad_on_calc,
             **forward_kwargs,
         )
 

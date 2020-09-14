@@ -1,4 +1,6 @@
-from typing import Callable, List
+from typing import List
+
+import copy
 
 import numpy as np
 import torch
@@ -13,17 +15,18 @@ class L2LLoss:
         self,
         model,
         loss_fn: LossFn,
-        store_grad_on_calc: bool = True,
+        # store_grad_on_calc: bool = True,
         **forward_kwargs,
     ):
         self.model = model
         self.loss_fn = loss_fn
-        self.store_grad_on_calc = store_grad_on_calc
+        self.store_grad_on_calc = False  # store_grad_on_calc
         self.forward_kwargs = forward_kwargs or {}
 
         self._batch = None
         self._target = None
 
+    @torch.no_grad()
     def __call__(
         self, batch: torch.Tensor, target: torch.Tensor
     ) -> torch.Tensor:
@@ -34,7 +37,7 @@ class L2LLoss:
         num_steps_in_loss = batch.shape[0] // microbatch_size
         losses: List[torch.Tensor] = []
 
-        layer: nn.Module = self.model._get_layers()[-1].to(
+        last_layer: nn.Module = copy.deepcopy(self.model._get_layers()[-1]).to(
             self.model.gpu_device
         )
 
@@ -47,31 +50,32 @@ class L2LLoss:
             leave=False,
         ):
             microbatch = microbatch.to(self.model.gpu_device)
-            microbatch.requires_grad = True
+            # microbatch.requires_grad = True
 
             microtarget = microtarget.to(self.model.gpu_device)
 
-            activation: torch.Tensor = layer(microbatch, **self.forward_kwargs)
+            activation: torch.Tensor = last_layer(
+                microbatch, **self.forward_kwargs
+            )
 
             loss = self.loss_fn(activation, microtarget)
             losses.append(loss.item())
 
-            if self.store_grad_on_calc:
-                loss.backward()
-                self.model._grads[-1].append(microbatch.grad.cpu())
+            # if self.store_grad_on_calc:
+            #     loss.backward()
+            #     self.model._grads[-1].append(microbatch.grad.cpu())
 
         with torch.no_grad():
             loss_value = torch.tensor(np.sum(losses) / num_steps_in_loss)
 
         return loss_value
 
-    @torch.no_grad()
     def backward(self) -> None:
         self.model.calculate_gradients(
             self._batch,
             self._target,
             loss_fn=self.loss_fn,
-            skip_last_layer=self.store_grad_on_calc,
+            # skip_last_layer=self.store_grad_on_calc,
         )
 
     def __enter__(self):
