@@ -71,7 +71,7 @@ class L2LLoss:
         return loss_value
 
     def backward(self) -> None:
-        self.model.calculate_gradients(
+        self.model.backward(
             self._batch,
             self._target,
             loss_fn=self.loss_fn,

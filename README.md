@@ -1,4 +1,4 @@
-# L2L execution algorithm PyTorch [WIP]
+# L2L execution algorithm PyTorch
 
 <div align="center">
 
@@ -14,8 +14,6 @@
 
 PyTorch implementation of L2L execution algorithm from paper [Training Large Neural Networks with Constant Memory using a New Execution Algorithm](https://arxiv.org/abs/2002.05645)
 </div>
-
-## [Not ready yet]
 
 ## 🚀 Exapmle
 
@@ -91,9 +89,7 @@ for i in trange(5000):
     l2l_model.zero_grad()
     l2l_model.forward(x)
 
-    with l2l_model.l2l_loss(loss_fn=loss_fn) as loss: # APEX-like loss style
-        loss_value = loss(x, y)
-        loss.backward()
+    loss_value = l2l_model.backward(x, y, loss_fn)
 
     if i % 50 == 0:
         tqdm.write(f"[{i}] loss = {loss_value.item()}")
