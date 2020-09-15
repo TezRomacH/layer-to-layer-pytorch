@@ -119,7 +119,9 @@ class Layer2Layer:
             total=self.num_layers,
             leave=False,
         ):
-            layer = copy.deepcopy(l).to(self.gpu_device)
+            layer: nn.Module = copy.deepcopy(l).to(self.gpu_device)
+            for param in layer.parameters():
+                param.grad = None
             f_idx: int = self.num_layers - idx - 1
 
             # TODO: preserve re-calculations
@@ -194,11 +196,11 @@ class Layer2Layer:
 
                 self._grads[idx].append(microbatch.grad.cpu())
 
-                self._copy_grad_to_main_model(
-                    num_steps,
-                    local_params=layer.parameters(),
-                    main_params=layers[f_idx].parameters(),
-                )
+            self._copy_grad_to_main_model(
+                num_steps,
+                local_params=layer.parameters(),
+                main_params=layers[f_idx].parameters(),
+            )
 
             with torch.no_grad():
                 self._grads[idx] = (
