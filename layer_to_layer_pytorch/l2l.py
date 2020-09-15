@@ -57,6 +57,10 @@ class Layer2Layer:
 
         self._reset_activations()
 
+    def _zero_layer_grad(self, layer: nn.Module) -> None:
+        for param in layer.parameters():
+            param.grad = None
+
     @torch.no_grad()
     def forward(self, batch: torch.Tensor, **kwargs) -> torch.Tensor:
         layers: nn.ModuleList = self._get_layers()
@@ -119,9 +123,8 @@ class Layer2Layer:
             total=self.num_layers,
             leave=False,
         ):
+            self._zero_layer_grad(l)
             layer: nn.Module = copy.deepcopy(l).to(self.gpu_device)
-            for param in layer.parameters():
-                param.grad = None
             f_idx: int = self.num_layers - idx - 1
 
             # TODO: preserve re-calculations
