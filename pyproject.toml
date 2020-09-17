@@ -6,7 +6,7 @@ build-backend = "poetry.masonry.api"
 
 [tool.poetry]
 name = "layer-to-layer-pytorch"
-version = "0.2.1"
+version = "0.3.0"
 description = "PyTorch implementation of L2L execution algorithm"
 readme = "README.md"
 authors = [
