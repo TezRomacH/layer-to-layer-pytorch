@@ -15,7 +15,7 @@
 PyTorch implementation of L2L execution algorithm from paper [Training Large Neural Networks with Constant Memory using a New Execution Algorithm](https://arxiv.org/abs/2002.05645)
 </div>
 
-## 🚀 Exapmle
+## 🚀 Example
 
 You need to define a torch model where all layers are specified in ModuleList.
 
